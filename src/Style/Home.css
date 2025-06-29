@@ -416,6 +416,61 @@
   100% { transform: scale(1); }
 }
 
+/* Indicadores de carga y scroll infinito */
+.loading-indicator {
+  padding: 2rem;
+  text-align: center;
+}
+
+.loading-indicator p {
+  font-size: 1.1rem;
+  color: #666;
+  margin: 0;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.end-message {
+  padding: 2rem;
+  text-align: center;
+  border-top: 2px solid #e9ecef;
+  margin-top: 2rem;
+}
+
+.end-message p {
+  font-size: 1.1rem;
+  color: #6c757d;
+  margin: 0;
+  font-weight: 500;
+}
+
+.search-controls {
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.show-all-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.show-all-btn:hover {
+  background: #0056b3;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
 /* Responsive */
 @media (max-width: 1200px) {
   .ad-banner {

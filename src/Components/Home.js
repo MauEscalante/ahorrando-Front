@@ -1,107 +1,99 @@
-import React,{useEffect,useState} from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import Card from "../Components/Card";
 import { LocalMarketplace, ReferralAd } from "../Components/LocalAds";
-import "../Style/Home.css"
+import "../Style/Home.css";
 
-const Home = () => {
-
+const Home = ({  searchTerm }) => {
   const [products, setProducts] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [initialLoad, setInitialLoad] = useState(true);
+  
+  const PRODUCTS_PER_PAGE = 12; // Número de productos por página
+  
+  const fetchProducts = useCallback(async (pageNum = 1, reset = false, searchQuery = null) => {
+    try {
+      setLoading(true);
+      let response;
+      
+      if (searchQuery) {
+        // Buscar productos con paginación
+        response = await axios.get(`http://localhost:4000/api/products/${searchQuery}?page=${pageNum}&limit=${PRODUCTS_PER_PAGE}`);
+      } else {
+        // Obtener todos los productos con paginación
+        response = await axios.get(`http://localhost:4000/api/products?page=${pageNum}&limit=${PRODUCTS_PER_PAGE}`);
+      }
+      
+      if (reset) {
+        setProducts(response.data);
+      } else {
+        setProducts(prev => [...prev, ...response.data]);
+      }
+      
+      // Si recibimos menos productos que el límite, no hay más páginas
+      setHasMore(response.data.length === PRODUCTS_PER_PAGE);
+      setInitialLoad(false);
+    } catch (error) {
+      console.error('Error al obtener productos:', error);
+      setHasMore(false);
+    } finally {
+      setLoading(false);
+    }
+  }, [PRODUCTS_PER_PAGE]);
+  
   useEffect(() => {
-    setProducts([
-      {
-        id: 1,
-        titulo: "KIT REDRAGON M601WL-BA",
-        local: "AR Shop",
-        precio: "$19.585",
-        imagenUrl: "https://images.unsplash.com/photo-1527814050087-3793815479db?w=300&h=200&fit=crop",
-      },
-      {
-        id: 2,
-        titulo: "Mouse Gamer RGB",
-        local: "Venex",
-        precio: "$8.000",
-        imagenUrl: "https://images.unsplash.com/photo-1563297007-0686b7003af7?w=300&h=200&fit=crop",
-      },
-      {
-        id: 3,
-        titulo: "Teclado Mecánico RGB",
-        local: "Full H4rd",
-        precio: "$18.500",
-        imagenUrl: "https://images.unsplash.com/photo-1541140532154-b024d705b90a?w=300&h=200&fit=crop",
-      },
-      {
-        id: 4,
-        titulo: "Auriculares Gaming 7.1",
-        local: "TechZone",
-        precio: "$12.750",
-        imagenUrl: "https://images.unsplash.com/photo-1484704849700-f032a568e944?w=300&h=200&fit=crop",
-      },
-      {
-        id: 5,
-        titulo: "Monitor Gaming 24' 144Hz",
-        local: "CompuGamer",
-        precio: "$45.999",
-        imagenUrl: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=300&h=200&fit=crop",
-      },
-      {
-        id: 6,
-        titulo: "Silla Gamer Ergonómica",
-        local: "OfficeMax",
-        precio: "$89.900",
-        imagenUrl: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300&h=200&fit=crop",
-      },
-      {
-        id: 7,
-        titulo: "Webcam HD 1080p",
-        local: "Digital Store",
-        precio: "$7.500",
-        imagenUrl: "https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?w=300&h=200&fit=crop",
-      },
-      {
-        id: 8,
-        titulo: "Micrófono USB Streaming",
-        local: "Audio Pro",
-        precio: "$15.200",
-        imagenUrl: "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=300&h=200&fit=crop",
-      },
-      {
-        id: 9,
-        titulo: "GPU RTX 3060 Ti",
-        local: "PC Masters",
-        precio: "$125.000",
-        imagenUrl: "https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=300&h=200&fit=crop",
-      },
-      {
-        id: 10,
-        titulo: "SSD 1TB NVMe",
-        local: "Hardware Plus",
-        precio: "$28.999",
-        imagenUrl: "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=300&h=200&fit=crop",
-      },
-      {
-        id: 11,
-        titulo: "RAM DDR4 16GB 3200MHz",
-        local: "Memory World",
-        precio: "$22.450",
-        imagenUrl: "https://images.unsplash.com/photo-1562976540-b5295019cd17?w=300&h=200&fit=crop",
-      },
-      {
-        id: 12,
-        titulo: "Cooler CPU RGB",
-        local: "Cooling Tech",
-        precio: "$9.800",
-        imagenUrl: "https://images.unsplash.com/photo-1555617981-dac3880eac6e?w=300&h=200&fit=crop",
-      },
-      {
-        id: 13,
-        titulo: "Fuente 750W 80+ Gold",
-        local: "Power Supply Co",
-        precio: "$35.000",
-        imagenUrl: "https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=300&h=200&fit=crop",
-      },
-    ]);
-  }, []);
+    fetchProducts(1, true); // Carga inicial
+  }, [fetchProducts]);
+
+  // Efecto para manejar inicio de búsqueda
+  useEffect(() => {
+    if (searchTerm !== null) {
+      console.log('� Starting search for:', searchTerm);
+      setIsSearching(true);
+      setCurrentPage(1);
+      setHasMore(true);
+      fetchProducts(1, true, searchTerm);
+    }
+  }, [searchTerm, fetchProducts]);
+
+  // Efecto para manejar el reset de búsqueda
+  useEffect(() => {
+    if (searchTerm === null && isSearching) {
+      console.log('🏠 Resetting to all products');
+      setIsSearching(false);
+      setCurrentPage(1);
+      setHasMore(true);
+      fetchProducts(1, true);
+    }
+  }, [searchTerm, isSearching, fetchProducts]);
+
+  // Efecto para detectar scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      if (loading || !hasMore) return;
+      
+      const scrollTop = document.documentElement.scrollTop;
+      const scrollHeight = document.documentElement.scrollHeight;
+      const clientHeight = document.documentElement.clientHeight;
+      
+      // Si el usuario está cerca del final (200px antes), cargar más
+      if (scrollTop + clientHeight >= scrollHeight - 200) {
+        setCurrentPage(prevPage => {
+          const newPage = prevPage + 1;
+          // Pasar el término de búsqueda si estamos buscando
+          fetchProducts(newPage, false, isSearching ? searchTerm : null);
+          return newPage;
+        });
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [loading, hasMore, isSearching, searchTerm, fetchProducts]);
+
 
   return (
     <>
@@ -114,11 +106,35 @@ const Home = () => {
       {/* Contenido principal */}
       <div className="main-content">
         <div className="container text-center">
+          
           <div className="contenedor-populars">
-            {products.map((data) => (
-                <Card data={data} key={data.id} />
-            ))}
+            {products.length > 0 ? (
+              products.map((data, index) => (
+                <Card data={data} key={data._id || index} />
+              ))
+            ) : (
+              !loading && !initialLoad && <p>No se encontraron productos</p>
+            )}
           </div>
+          
+          {/* Indicador de carga */}
+          {loading && (
+            <div className="loading-indicator">
+              <p>Cargando productos...</p>
+            </div>
+          )}
+          
+          {/* Mensaje cuando no hay más productos */}
+          {!hasMore && products.length > 0 && (
+            <div className="end-message">
+              <p>
+                {isSearching 
+                  ? `¡Has visto todos los resultados para "${searchTerm}"!`
+                  : '¡Has visto todos los productos disponibles!'
+                }
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
