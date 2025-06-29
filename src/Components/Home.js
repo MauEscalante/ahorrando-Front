@@ -29,8 +29,11 @@ const Home = ({  searchTerm }) => {
       
       if (reset) {
         setProducts(response.data);
+        console.log('📦 Productos cargados (reset):', response.data.length);
+        console.log('🔍 Muestra de datos:', response.data.slice(0, 2));
       } else {
         setProducts(prev => [...prev, ...response.data]);
+        console.log('📦 Productos agregados:', response.data.length);
       }
       
       // Si recibimos menos productos que el límite, no hay más páginas
@@ -124,17 +127,7 @@ const Home = ({  searchTerm }) => {
             </div>
           )}
           
-          {/* Mensaje cuando no hay más productos */}
-          {!hasMore && products.length > 0 && (
-            <div className="end-message">
-              <p>
-                {isSearching 
-                  ? `¡Has visto todos los resultados para "${searchTerm}"!`
-                  : '¡Has visto todos los productos disponibles!'
-                }
-              </p>
-            </div>
-          )}
+          
         </div>
       </div>
 
