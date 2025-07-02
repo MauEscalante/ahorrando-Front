@@ -118,12 +118,30 @@ const Home = ({  searchTerm }) => {
             ) : (
               !loading && !initialLoad && <p>No se encontraron productos</p>
             )}
+            
+            {/* Skeleton cards para carga inicial */}
+            {loading && initialLoad && (
+              <>
+                {[...Array(8)].map((_, index) => (
+                  <div key={`skeleton-${index}`} className="skeleton-card">
+                    <div className="skeleton-image"></div>
+                    <div className="skeleton-content">
+                      <div className="skeleton-store"></div>
+                      <div className="skeleton-title"></div>
+                      <div className="skeleton-title short"></div>
+                      <div className="skeleton-price"></div>
+                    </div>
+                  </div>
+                ))}
+              </>
+            )}
           </div>
           
-          {/* Indicador de carga */}
-          {loading && (
+          {/* Indicador de carga para scroll infinito */}
+          {loading && !initialLoad && (
             <div className="loading-indicator">
-              <p>Cargando productos...</p>
+              <div className="loading-spinner"></div>
+              <p>Cargando más productos...</p>
             </div>
           )}
           
