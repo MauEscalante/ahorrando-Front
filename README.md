@@ -1,70 +1,136 @@
-# Getting Started with Create React App
+# 🛒 Ahorrando - Frontend React
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## 📋 Descripción
 
-## Available Scripts
+Aplicación web React que permite a los usuarios comparar precios de productos de hardware entre diferentes tiendas argentinas con una interfaz moderna y responsive.
 
-In the project directory, you can run:
+## 🚀 Inicio Rápido
 
-### `npm start`
+```bash
+npm install
+npm start
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+La aplicación estará disponible en `http://localhost:3000`
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 📊 Estructura del Proyecto
 
-### `npm test`
+```
+src/
+├── Assets/              # Recursos estáticos
+│   └── usuario.svg
+├── Components/          # Componentes React
+│   ├── AdComponents.js
+│   ├── Card.js          # Tarjeta de producto
+│   ├── ForgotPassword.js
+│   ├── Home.js          # Página principal
+│   ├── LocalAds.js      # Publicidad local
+│   ├── Login.js         # Autenticación
+│   ├── NavBar.js        # Navegación
+│   ├── Register.js      # Registro de usuarios
+│   └── Search.jsx       # Búsqueda de productos
+├── config/
+│   └── adsConfig.js     # Configuración de anuncios
+├── Style/               # Estilos CSS
+│   ├── ForgotPassword.css
+│   ├── Home.css
+│   ├── Login.css
+│   ├── navbar.css
+│   ├── Register.css
+│   └── Search.css
+├── App.js               # Componente principal
+└── index.js             # Punto de entrada
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 🎨 Funcionalidades Principales
 
-### `npm run build`
+### 🏠 Página Principal (Home)
+- ✅ **Grid responsive** de productos
+- ✅ **Skeleton loading** durante la carga
+- ✅ **Infinite scroll** para paginación
+- ✅ **Estados vacíos** informativos
+- ✅ **Banners publicitarios** laterales
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### 🔍 Búsqueda Inteligente
+- ✅ **Búsqueda en tiempo real**
+- ✅ **Estados de carga** con spinners
+- ✅ **Autocompletado** (próximamente)
+- ✅ **Filtrado por términos**
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### 🃏 Tarjetas de Producto
+- ✅ **Diseño moderno** con hover effects
+- ✅ **Sistema de favoritos**
+- ✅ **Información completa** del producto
+- ✅ **Enlaces a tiendas** originales
+- ✅ **Badges de descuentos**
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### 👤 Sistema de Usuarios
+- ✅ **Registro** con validación
+- ✅ **Login/Logout** seguro
+- ✅ **Gestión de perfil**
+- ✅ **Recuperación de contraseña**
+- ✅ **Lista de favoritos**
 
-### `npm run eject`
+## 🛠️ Componentes Principales
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Home.js
+Componente principal que maneja:
+- Carga de productos con paginación
+- Estados de búsqueda
+- Scroll infinito
+- Skeleton loading
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### NavBar.js
+Navegación principal con:
+- Logo de la aplicación
+- Barra de búsqueda integrada
+- Menú de usuario
+- Links de navegación
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
 
-## Learn More
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## 📱 Responsive Design
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Breakpoints
+- **Desktop**: > 1024px - Layout con 3 columnas
+- **Tablet**: 768px - 1024px - Layout con 2 columnas
+- **Mobile**: < 768px - Layout con 1 columna
 
-### Code Splitting
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
 
-### Analyzing the Bundle Size
+### Dependencias Principales
+- **React 19**: Biblioteca principal
+- **React Router DOM**: Enrutamiento
+- **Axios**: Cliente HTTP
+- **React Scripts**: Herramientas de desarrollo
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## 🌐 Integración con API
 
-### Making a Progressive Web App
+### Configuración de Axios
+```javascript
+const API_BASE_URL = 'http://localhost:4000/api';
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+// Obtener productos
+const response = await axios.get(`${API_BASE_URL}/products?page=${page}&limit=${limit}`);
 
-### Advanced Configuration
+// Buscar productos
+const response = await axios.get(`${API_BASE_URL}/products/${searchTerm}`);
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
 
-### Deployment
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## 🎯 Funcionalidades Avanzadas
 
-### `npm run build` fails to minify
+### Infinite Scroll
+### Skeleton Loading
+### Sistema de Favoritos
+## 🔒 Autenticación
+### Login/Register
+### Gestión de Estado de Usuario
+## 📢 Sistema de Publicidad
+### LocalAds Component
+## 🚀 Optimizaciones de Rendimiento
+### Lazy Loading
+### Memoización
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
