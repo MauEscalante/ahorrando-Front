@@ -10,14 +10,18 @@ const ProductDetails = () => {
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [isFavorite, setIsFavorite] = useState(false);
 
-    console.log('Product ID from params:', id);
+    const toggleFavorite = () => {
+        setIsFavorite(!isFavorite);
+        // Aquí puedes agregar la lógica para guardar en localStorage o enviar al backend
+        console.log(isFavorite ? 'Removido de favoritos' : 'Agregado a favoritos');
+    };
 
     useEffect(() => {
         const fetchProduct = async () => {
             try {
                 const productData = await getProductById(id);
-                console.log('Product data received:', productData);
                 // El controlador devuelve { data: product }, así que accedemos a .data
                 setProduct(productData.data);
                 setLoading(false);
@@ -57,7 +61,17 @@ const ProductDetails = () => {
                     <div className="product-details-info">
                         <h1 className="product-title">{product.titulo}</h1>
                         <div className="product-price-info">
-                            <span className="current-price">{product.precio}</span>
+                            <div className="price-and-favorite">
+                                <span className="current-price"> {product.precio}</span>
+                                <button 
+                                    className={`favorite-btn ${isFavorite ? 'active' : ''}`}
+                                    onClick={toggleFavorite}
+                                >
+                                    <span className="heart-icon">
+                                        {isFavorite ? '❤️' : '🤍'}
+                                    </span>
+                                </button>
+                            </div>
                             <span className="product-store">{product.local}</span>
                         </div>
                         <div className="product-actions">

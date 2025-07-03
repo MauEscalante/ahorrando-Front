@@ -101,7 +101,6 @@ export const getDetalles = async (id, año, mes) => {
 }
 
 export const getProductById = async (id) => {
-  console.log('Fetching product by ID:', id);
   let url = `${urlWebServices.getProductById}${id}`;
 
   try {
