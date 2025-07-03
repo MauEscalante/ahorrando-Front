@@ -63,7 +63,6 @@ export const getPromedios = async (id) => {
         Accept: 'application/json',
       },
     });
-    console.log(response)
     let data = await response.json();
 
     if (response.status === 404) {

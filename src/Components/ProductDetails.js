@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import Plot from 'react-plotly.js'; // Comentado temporalmente hasta instalar
+import Grafico from './Grafico.js'; // Asegúrate de que el componente Chart esté correctamente importado
 import '../Style/ProductDetails.css';
 import { getProductById, getDetalles } from '../controller/miApp.controller'; // Asegúrate de que esta función esté definida correctamente
 
@@ -85,7 +85,7 @@ const ProductDetails = () => {
             <div className="chart-section">
                 <h3 className="chart-title">Historial de precios</h3>
                 <div className="chart-container">
-                    <p>Gráfico de precios pendiente</p>
+                    <Grafico productId={id} />
                 </div>
             </div>
         </div>

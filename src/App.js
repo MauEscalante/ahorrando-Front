@@ -12,18 +12,15 @@ const App = () => {
     const [searchTerm, setSearchTerm] = useState(null);
 
     const handleSearchResults = (results) => {
-        console.log('📱 App: Setting search results:', results.length, 'products');
         setSearchResults(results);
     };
 
     const handleSearchStart = (term) => {
-        console.log('🔍 App: Starting search for:', term);
         setSearchTerm(term);
         setSearchResults([]); // Inicializar con array vacío para activar modo búsqueda
     };
 
     const clearSearch = () => {
-        console.log('🧹 App: Clearing search');
         setSearchResults(null);
         setSearchTerm(null);
     };
