@@ -1,10 +1,12 @@
 import React, { useEffect, useState, useCallback } from "react";
+import { useLocation } from "react-router-dom";
 import axios from "axios";
 import Card from "../Components/Card";
 import { LocalMarketplace, ReferralAd } from "../Components/LocalAds";
 import "../Style/Home.css";
 
 const Home = ({  searchTerm }) => {
+  const location = useLocation();
   const [products, setProducts] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -47,6 +49,18 @@ const Home = ({  searchTerm }) => {
   useEffect(() => {
     fetchProducts(1, true); // Carga inicial
   }, [fetchProducts]);
+
+  // Efecto para manejar searchTerm desde el state de navegación
+  useEffect(() => {
+    if (location.state && location.state.searchTerm) {
+      const navigationSearchTerm = location.state.searchTerm;
+      console.log('🔍 Search term from navigation:', navigationSearchTerm);
+      setIsSearching(true);
+      setCurrentPage(1);
+      setHasMore(true);
+      fetchProducts(1, true, navigationSearchTerm);
+    }
+  }, [location.state, fetchProducts]);
 
   // Efecto para manejar inicio de búsqueda
   useEffect(() => {

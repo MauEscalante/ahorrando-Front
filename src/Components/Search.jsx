@@ -1,9 +1,11 @@
 import React from "react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../Style/Search.css";
 
 export function Search({ onSearchResults, onSearchStart }) {
   const [value, setValue] = useState("");
+  const navigate = useNavigate();
 
   const handleValue = (e) => {
     setValue(e.target.value);
@@ -13,7 +15,11 @@ export function Search({ onSearchResults, onSearchStart }) {
     e.preventDefault();
     if (value.trim()) {
       console.log('🔍 Searching for:', value);
-      onSearchStart(value.trim()); // Envía el término de búsqueda al componente padre
+      const searchQuery = value.trim();
+      onSearchStart(searchQuery); // Envía el término de búsqueda al componente padre
+      
+      // Navegar con el estado de búsqueda para asegurar que se mantenga
+      navigate("/", { state: { searchTerm: searchQuery } });
     }
     setValue("")
   };

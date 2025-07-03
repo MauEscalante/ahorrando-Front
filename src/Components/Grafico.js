@@ -137,6 +137,15 @@ const Grafico = ({ productId }) => {
         }
       }
     },
+    layout: {
+      padding: 10
+    },
+    elements: {
+      point: {
+        backgroundColor: '#ffffff',
+        borderColor: '#3498db'
+      }
+    },
     scales: {
       x: {
         display: true,
@@ -198,7 +207,7 @@ const Grafico = ({ productId }) => {
         display: 'flex', 
         justifyContent: 'center', 
         alignItems: 'center', 
-        height: '400px',
+        height: '300x',
         fontSize: '16px'
       }}>
         Cargando datos del gráfico...
@@ -212,7 +221,7 @@ const Grafico = ({ productId }) => {
         display: 'flex', 
         justifyContent: 'center', 
         alignItems: 'center', 
-        height: '400px',
+        height: '300px',
         color: 'red',
         fontSize: '16px'
       }}>
@@ -227,7 +236,7 @@ const Grafico = ({ productId }) => {
         display: 'flex', 
         justifyContent: 'center', 
         alignItems: 'center', 
-        height: '400px',
+        height: '300px',
         fontSize: '16px'
       }}>
         No hay datos disponibles para mostrar
@@ -236,7 +245,7 @@ const Grafico = ({ productId }) => {
   }
 
   return (
-    <div style={{ width: '100%', height: '400px' }}>
+    <div style={{ width: '100%', height: '300px', backgroundColor: '#f8f9fa', borderRadius: '8px', padding: '10px' }}>
       <Line data={chartData} options={options} />
     </div>
   );

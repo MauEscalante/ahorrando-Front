@@ -81,11 +81,10 @@ const ProductDetails = () => {
                         </div>
                     </div>
                 </div>
-            </div>
-            <div className="chart-section">
-                <h3 className="chart-title">Historial de precios</h3>
-                <div className="chart-container">
-                    <Grafico productId={id} />
+                <div className="chart-section">
+                    <div className="chart-container">
+                        <Grafico productId={id} />
+                    </div>
                 </div>
             </div>
         </div>
