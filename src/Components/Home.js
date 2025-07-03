@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
 import Card from "../Components/Card";
-import { LocalMarketplace, ReferralAd } from "../Components/LocalAds";
+import bannerImage from "../Assets/banner-vertical-large-1.jpg";
 import "../Style/Home.css";
 
 const Home = ({  searchTerm }) => {
@@ -108,11 +108,14 @@ const Home = ({  searchTerm }) => {
 
 
   return (
-    <>
     <div className="home-layout">
-      {/* Banner publicitario izquierdo - Anuncios Locales */}
-      <div className="ad-banner left-ad">
-        <LocalMarketplace />
+      {/* Banner izquierdo */}
+      <div className="left-banner">
+        <img 
+          src={bannerImage} 
+          alt="Banner publicitario" 
+          className="banner-image"
+        />
       </div>
 
       {/* Contenido principal */}
@@ -154,16 +157,9 @@ const Home = ({  searchTerm }) => {
             </div>
           )}
           
-          
         </div>
       </div>
-
-      {/* Banner publicitario derecho - Anuncio de referidos */}
-      <div className="ad-banner right-ad">
-        <ReferralAd />
-      </div>
     </div>
-  </>
   );
 };
 
