@@ -5,6 +5,7 @@ import Home from "./Components/Home";
 import Login from "./Components/Login";
 import ForgotPassword from "./Components/ForgotPassword";
 import Register from "./Components/Register";
+import ProductDetails from "./Components/ProductDetails";
 
 const App = () => {
     const [searchResults, setSearchResults] = useState(null);
@@ -48,6 +49,7 @@ const App = () => {
                 <Route path="/login" element={<Login />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/product/:productId" element={<ProductDetails />} />
             </Routes>
         </>
     );

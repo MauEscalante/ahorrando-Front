@@ -29,11 +29,8 @@ const Home = ({  searchTerm }) => {
       
       if (reset) {
         setProducts(response.data);
-        console.log('📦 Productos cargados (reset):', response.data.length);
-        console.log('🔍 Muestra de datos:', response.data.slice(0, 2));
       } else {
         setProducts(prev => [...prev, ...response.data]);
-        console.log('📦 Productos agregados:', response.data.length);
       }
       
       // Si recibimos menos productos que el límite, no hay más páginas
@@ -54,7 +51,6 @@ const Home = ({  searchTerm }) => {
   // Efecto para manejar inicio de búsqueda
   useEffect(() => {
     if (searchTerm !== null) {
-      console.log('� Starting search for:', searchTerm);
       setIsSearching(true);
       setCurrentPage(1);
       setHasMore(true);
@@ -65,7 +61,6 @@ const Home = ({  searchTerm }) => {
   // Efecto para manejar el reset de búsqueda
   useEffect(() => {
     if (searchTerm === null && isSearching) {
-      console.log('🏠 Resetting to all products');
       setIsSearching(false);
       setCurrentPage(1);
       setHasMore(true);

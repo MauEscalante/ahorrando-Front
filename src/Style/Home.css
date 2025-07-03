@@ -327,11 +327,13 @@
   flex-direction: column;
   width: 100%;
   max-width: 320px;
+  cursor: pointer;
 }
 
 .card-product:hover {
   transform: translateY(-4px);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  border-color: #667eea;
 }
 
 .card-image {

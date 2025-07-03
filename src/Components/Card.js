@@ -1,14 +1,21 @@
 import React, { useState } from "react";
+import { useNavigate } from 'react-router-dom';
 
 const Card = ({ data }) => {
   const [isFavorite, setIsFavorite] = useState(false);
+  const navigate = useNavigate();
 
-  const toggleFavorite = () => {
+  const toggleFavorite = (e) => {
+    e.stopPropagation(); // Evitar que el clic se propague al card
     setIsFavorite(!isFavorite);
   };
 
+  const handleCardClick = () => {
+    navigate(`/product/${data._id}`);
+  };
+
   return (
-    <div className="card-product">
+    <div className="card-product" onClick={handleCardClick} style={{ cursor: 'pointer' }}>
       <div className="card-image">
         <img src={data.imagenURL} alt={data.titulo} />
       </div>
