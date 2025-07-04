@@ -2,7 +2,6 @@ import urlWebServices from './webServices.js';
 
 export const signUp = async userData => {
   let url = urlWebServices.signUp;
-
   try {
     let response = await fetch(url, {
       method: 'POST',
@@ -28,7 +27,6 @@ export const signUp = async userData => {
 
 export const signIn = async userData => {
   let url = urlWebServices.signIn;
-
   try {
     let response = await fetch(url, {
       method: 'POST',

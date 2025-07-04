@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../Style/Register.css';
+import { signUp } from '../controller/miApp.controller'; // Asegúrate de que esta función esté implementada correctamente
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -13,7 +14,7 @@ const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [acceptTerms, setAcceptTerms] = useState(false);
+
   
   const navigate = useNavigate();
 
@@ -60,10 +61,7 @@ const Register = () => {
       newErrors.confirmPassword = 'Las contraseñas no coinciden';
     }
     
-    if (!acceptTerms) {
-      newErrors.terms = 'Debes aceptar los términos y condiciones';
-    }
-    
+  
     return newErrors;
   };
 
@@ -79,25 +77,14 @@ const Register = () => {
     setIsLoading(true);
     
     try {
-      // Simulación de registro (aquí irías al backend)
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Simular usuario registrado
-      const user = {
-        id: Date.now(),
-        email: formData.email,
-        name: formData.name,
-        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.name)}&background=434343&color=fff`
-      };
-      
-      localStorage.setItem('user', JSON.stringify(user));
-      localStorage.setItem('isLoggedIn', 'true');
-      
+      const user = await signUp(formData);
+
       // Redirigir al home
       navigate('/');
       
     } catch (error) {
-      setErrors({ general: 'Error al crear la cuenta. Intenta nuevamente.' });
+      console.error('Error en registro:', error);
+      setErrors({ general: error.message || 'Error al crear la cuenta. Intenta nuevamente.' });
     } finally {
       setIsLoading(false);
     }
@@ -138,9 +125,7 @@ const Register = () => {
                 placeholder="Tu nombre completo"
                 autoComplete="name"
               />
-              {errors.name && (
-                <span className="error-message">{errors.name}</span>
-              )}
+               <p className={errors.name !== "" ? "error" :"mensajeError"} id="mensajeNombre">{errors.name}</p>
             </div>
 
             <div className="form-group">
@@ -158,9 +143,7 @@ const Register = () => {
                 placeholder="tu@email.com"
                 autoComplete="email"
               />
-              {errors.email && (
-                <span className="error-message">{errors.email}</span>
-              )}
+              <p className={errors.email !== "" ? "error" :"mensajeError"} id="mensajeEmail">{errors.email}</p>
             </div>
 
             <div className="form-group">
@@ -188,9 +171,7 @@ const Register = () => {
                   {showPassword ? '👁️' : '👁️‍🗨️'}
                 </button>
               </div>
-              {errors.password && (
-                <span className="error-message">{errors.password}</span>
-              )}
+               <p className={errors.password !== "" ? "error" :"mensajeError"} id="mensajeContrasenia">{errors.password}</p>
             </div>
 
             <div className="form-group">
@@ -218,9 +199,7 @@ const Register = () => {
                   {showConfirmPassword ? '👁️' : '👁️‍🗨️'}
                 </button>
               </div>
-              {errors.confirmPassword && (
-                <span className="error-message">{errors.confirmPassword}</span>
-              )}
+               <p className={errors.confirmPassword !== "" ? "error" :"mensajeError"} id="mensajeContrasenia">{errors.confirmPassword}</p>
             </div>
 
             <button

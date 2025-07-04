@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../Style/Login.css';
+import { signIn } from '../controller/miApp.controller'; // Asegúrate de que esta función esté implementada correctamente
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -59,20 +60,9 @@ const Login = () => {
     setIsLoading(true);
     
     try {
-      // Simulación de login (aquí irías al backend)
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Simular usuario logueado
-      const user = {
-        id: 1,
-        email: formData.email,
-        name: 'Usuario Demo',
-        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face'
-      };
-      
-      localStorage.setItem('user', JSON.stringify(user));
-      localStorage.setItem('isLoggedIn', 'true');
-      
+      const user=await signIn(formData);
+     
+
       // Redirigir al home
       navigate('/');
       
