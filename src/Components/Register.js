@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../Style/Register.css';
-import { signUp } from '../controller/miApp.controller'; // Asegúrate de que esta función esté implementada correctamente
+import { signUp } from '../controller/miApp.controller';
+import { useAuth } from '../context/AuthContext';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -14,6 +15,7 @@ const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const { refreshUser } = useAuth();
 
   
   const navigate = useNavigate();
@@ -78,6 +80,9 @@ const Register = () => {
     
     try {
       const user = await signUp(formData);
+
+      // Actualizar el estado del usuario en el contexto
+      refreshUser();
 
       // Redirigir al home
       navigate('/');

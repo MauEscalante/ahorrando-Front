@@ -34,6 +34,7 @@ export const signIn = async userData => {
         'Content-Type': 'application/json',
         Accept: 'application/json',
       },
+      credentials: 'include', // Incluir cookies en la petición
       body: JSON.stringify({
         email: userData.email,
         password: userData.password,
@@ -120,3 +121,49 @@ export const getProductById = async (id) => {
     throw error;
   }
 }
+
+export const isLogged= async () => {
+  let url = urlWebServices.isLogged;
+
+  try {
+    let response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      credentials: 'include', // Incluir cookies en la petición
+    });
+
+    if (response.status === 401) {
+      throw new Error('No autenticado');
+    }
+
+    let data = await response.json();
+    return data;
+  } catch (error) {
+    throw error;
+  }
+}
+export const logout = async () => {
+  let url = `${urlWebServices.logout}`;
+
+  try {
+    let response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      credentials: 'include', // Incluir cookies en la petición
+    });
+
+    if (response.status !== 200) {
+      throw new Error('Error al cerrar sesión');
+    }
+
+    return { message: 'Sesión cerrada correctamente' };
+  } catch (error) {
+    throw error;
+  }
+};    

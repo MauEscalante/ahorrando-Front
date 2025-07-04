@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Route, Routes } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
 import Navbar from "./Components/NavBar";
 import Home from "./Components/Home";
 import Login from "./Components/Login";
@@ -26,12 +27,12 @@ const App = () => {
     };
 
     return (
-        <>
-        <Navbar 
-            onSearchResults={handleSearchResults} 
-            onSearchStart={handleSearchStart} 
-            onClearSearch={clearSearch} 
-        />
+        <AuthProvider>
+            <Navbar 
+                onSearchResults={handleSearchResults} 
+                onSearchStart={handleSearchStart} 
+                onClearSearch={clearSearch} 
+            />
             <Routes>
                 <Route 
                     path="/" 
@@ -48,7 +49,7 @@ const App = () => {
                 <Route path="/register" element={<Register />} />
                 <Route path="/product/:productId" element={<ProductDetails />} />
             </Routes>
-        </>
+        </AuthProvider>
     );
 };
 

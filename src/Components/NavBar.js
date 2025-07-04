@@ -4,12 +4,12 @@ import { Link, useNavigate } from "react-router-dom";
 import "../Style/navbar.css"
 import Search from "./Search";
 import usuarioIcon from "../Assets/usuario.svg";
+import { logout } from "../controller/miApp.controller";
+import { useAuth } from "../context/AuthContext";
 
-const Navbar = ({ onSearchResults, onSearchStart, onClearSearch }) => {
+const Navbar =  ({ onSearchResults, onSearchStart, onClearSearch }) => {
   const [estadoOptionList, setEstadoOptionList] = useState(false);
-
-  const userNoparse = localStorage.getItem("user");
-  const user = userNoparse ? JSON.parse(userNoparse) : null;
+  const { user, clearUser } = useAuth();
   const navigate = useNavigate();
 
 
@@ -19,9 +19,10 @@ const Navbar = ({ onSearchResults, onSearchStart, onClearSearch }) => {
     }
   };
 
-  const handdleLogout = (e) => {
+  const handdleLogout = async (e) => {
     e.preventDefault();
-    localStorage.clear();
+    await logout();
+    clearUser(); // Limpiar el usuario del contexto
     navigate("/");
   };
 

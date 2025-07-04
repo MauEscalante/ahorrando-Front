@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../Style/Login.css';
-import { signIn } from '../controller/miApp.controller'; // Asegúrate de que esta función esté implementada correctamente
+import { signIn } from '../controller/miApp.controller';
+import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -11,6 +12,7 @@ const Login = () => {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const { refreshUser } = useAuth();
   
   const navigate = useNavigate();
 
@@ -60,9 +62,11 @@ const Login = () => {
     setIsLoading(true);
     
     try {
-      const user=await signIn(formData);
-     
-
+      const user = await signIn(formData);
+      
+      // Actualizar el estado del usuario en el contexto
+      refreshUser();
+      
       // Redirigir al home
       navigate('/');
       
