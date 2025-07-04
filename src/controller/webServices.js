@@ -1,12 +1,23 @@
 const urlApi= process.env.REACT_APP_API_URL || 'http://localhost:4000/api';
 
 const urlWebServices = {
+  // User-related endpoints
   signUp: `${urlApi}/users/register`,
   signIn: `${urlApi}/users/login`,
   logout: `${urlApi}/users/logout`,
-  getPromediosById: `${urlApi}/products/search/`,
-  getProductById: `${urlApi}/products/id/`,
   isLogged: `${urlApi}/users/me/logged`,
+  getProfile: `${urlApi}/users/me/profile`,
+
+  getFavorites: `${urlApi}/users/list/favoritos`,
+  toggleFavorite: `${urlApi}/users/favoritos/`,
+
+  // Product-related endpoints
+  getProducts: `${urlApi}/`,
+  getDetailsById: `${urlApi}/products/detalles/`,
+  getPromediosById: `${urlApi}/products/search/`,
+  getProductById: `${urlApi}/id/`,
+  getProductByTitle: `${urlApi}/title/`,
+  
 };
 
 export default urlWebServices;

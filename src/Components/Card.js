@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
+import { toggleFavorites } from "../controller/miApp.controller";
 
 const Card = ({ data }) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const navigate = useNavigate();
 
-  const toggleFavorite = (e) => {
+  const toggleFavorite = async (e) => {
     e.stopPropagation(); // Evitar que el clic se propague al card
-    setIsFavorite(!isFavorite);
+    await toggleFavorites( data._id, isFavorite);
+    setIsFavorite(!isFavorite);    
   };
 
   const handleCardClick = () => {

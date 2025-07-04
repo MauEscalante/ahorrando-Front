@@ -3,12 +3,13 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../Style/navbar.css"
 import Search from "./Search";
+import options from "../Assets/options.svg";
 import usuarioIcon from "../Assets/usuario.svg";
 import { logout } from "../controller/miApp.controller";
 import { useAuth } from "../context/AuthContext";
 
 const Navbar =  ({ onSearchResults, onSearchStart, onClearSearch }) => {
-  const [estadoOptionList, setEstadoOptionList] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { user, clearUser } = useAuth();
   const navigate = useNavigate();
 
@@ -24,14 +25,16 @@ const Navbar =  ({ onSearchResults, onSearchStart, onClearSearch }) => {
     await logout();
     clearUser(); // Limpiar el usuario del contexto
     navigate("/");
+    setIsDropdownOpen(false);
   };
 
- 
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
 
-  const handdleOptionList = () => {
-    setEstadoOptionList(!estadoOptionList);
-  }
-
+  const handleProfileClick = () => {
+    setIsDropdownOpen(false);
+  };
 
   return (
     <nav className="navbar navbar-expand-lg">
@@ -52,33 +55,26 @@ const Navbar =  ({ onSearchResults, onSearchStart, onClearSearch }) => {
             <>
               <div className="dropdown contenedor-menu-log">
                 <button
-                  className="btn btn-secondary dropdown-toggle"
+                  className="btn btn-secondary"
                   type="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
+                  onClick={toggleDropdown}
                 >
-                  <h5>Perfil </h5>
+                  <img src={options} alt="Options" className="user-icon" />
                 </button>
-                <ul className="dropdown-menu option-log">
-
-                  <Link to={"/profile"}>
-                    <span className="dropdown-item">Mi perfil</span>
-                  </Link>
-                  <li className="mis-listas" onClick={(e) => { e.stopPropagation(); handdleOptionList(); }}>
-                    <button type="button" className="dropdown-item dropdown-toggle">
-                      Mis Listas
-                    </button>
-                    <ul className={estadoOptionList ? "opcion-mis-listas" : "oculto"}>
-                      <li><Link to="/favorites">Favoritas</Link></li>
-                    </ul>
-                  </li>
-
-                  <li><Link to="/changePassword">Cambiar contraseña</Link></li>
-
-                  <button className="dropdown-item" onClick={handdleLogout}>
-                    Logout
-                  </button>
-                </ul>
+                {isDropdownOpen && (
+                  <ul className="dropdown-menu show">
+                    <li>
+                      <Link to={"/profile"} className="dropdown-item" onClick={handleProfileClick}>
+                        Perfil
+                      </Link>
+                    </li>
+                    <li>
+                      <button className="dropdown-item" onClick={handdleLogout}>
+                        Logout
+                      </button>
+                    </li>
+                  </ul>
+                )}
               </div>
             </>
           ) : (
