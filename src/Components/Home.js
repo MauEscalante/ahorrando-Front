@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useLocation } from "react-router-dom";
+import { getFavorites } from "../controller/miApp.controller";
 import axios from "axios";
 import Card from "../Components/Card";
 import bannerImage from "../Assets/banner-vertical-large-1.jpg";
@@ -13,8 +14,9 @@ const Home = ({  searchTerm }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [initialLoad, setInitialLoad] = useState(true);
+  const [favorites, setFavorites] = useState([]); // Estado para favoritos
   
-  const PRODUCTS_PER_PAGE = 12; // Número de productos por página
+  const PRODUCTS_PER_PAGE = 12; // Número de productos por página 
   
   const fetchProducts = useCallback(async (pageNum = 1, reset = false, searchQuery = null) => {
     try {
@@ -22,8 +24,8 @@ const Home = ({  searchTerm }) => {
       let response;
       
       if (searchQuery) {
-        // Buscar productos con paginación
-        response = await axios.get(`http://localhost:4000/api/products/${searchQuery}?page=${pageNum}&limit=${PRODUCTS_PER_PAGE}`);
+        // Buscar productos por título con paginación
+        response = await axios.get(`http://localhost:4000/api/products/title/${searchQuery}?page=${pageNum}&limit=${PRODUCTS_PER_PAGE}`);
       } else {
         // Obtener todos los productos con paginación
         response = await axios.get(`http://localhost:4000/api/products?page=${pageNum}&limit=${PRODUCTS_PER_PAGE}`);
@@ -48,13 +50,21 @@ const Home = ({  searchTerm }) => {
   
   useEffect(() => {
     fetchProducts(1, true); // Carga inicial
+    const fetchFavorites = async () => {
+      try{
+        const response = await getFavorites();
+        setFavorites(response.favoritos || []);
+      }catch(error){
+        console.error('Error al obtener favoritos:', error);
+      }
+    };
+    fetchFavorites();
   }, [fetchProducts]);
 
   // Efecto para manejar searchTerm desde el state de navegación
   useEffect(() => {
     if (location.state && location.state.searchTerm) {
       const navigationSearchTerm = location.state.searchTerm;
-      console.log('🔍 Search term from navigation:', navigationSearchTerm);
       setIsSearching(true);
       setCurrentPage(1);
       setHasMore(true);
@@ -124,8 +134,8 @@ const Home = ({  searchTerm }) => {
           
           <div className="contenedor-populars">
             {products.length > 0 ? (
-              products.map((data, index) => (
-                <Card data={data} key={data._id || index} />
+              products.map((data) => (
+                <Card data={data} key={data._id } esFavorito={favorites.includes(data._id)} />
               ))
             ) : (
               !loading && !initialLoad && <p>No se encontraron productos</p>

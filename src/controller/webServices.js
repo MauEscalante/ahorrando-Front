@@ -1,3 +1,5 @@
+import { getFavorites } from "./miApp.controller";
+
 const urlApi= process.env.REACT_APP_API_URL || 'http://localhost:4000/api';
 
 const urlWebServices = {
@@ -8,16 +10,15 @@ const urlWebServices = {
   isLogged: `${urlApi}/users/me/logged`,
   getProfile: `${urlApi}/users/me/profile`,
 
-  getFavorites: `${urlApi}/users/list/favoritos`,
+  getFavorite: `${urlApi}/users/list/favorito`,
   toggleFavorite: `${urlApi}/users/favoritos/`,
 
   // Product-related endpoints
-  getProducts: `${urlApi}/`,
+  getProducts: `${urlApi}/products`,
   getDetailsById: `${urlApi}/products/detalles/`,
   getPromediosById: `${urlApi}/products/search/`,
-  getProductById: `${urlApi}/id/`,
-  getProductByTitle: `${urlApi}/title/`,
-  
+  getProductById: `${urlApi}/products/id/`,
+  getProductByTitle: `${urlApi}/products/title/`,
 };
 
 export default urlWebServices;

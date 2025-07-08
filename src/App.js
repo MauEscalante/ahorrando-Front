@@ -7,6 +7,7 @@ import Login from "./Components/Login";
 import ForgotPassword from "./Components/ForgotPassword";
 import Register from "./Components/Register";
 import ProductDetails from "./Components/ProductDetails";
+import Profile from "./Components/Profile";
 
 const App = () => {
     const [searchResults, setSearchResults] = useState(null);
@@ -48,6 +49,7 @@ const App = () => {
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/product/:productId" element={<ProductDetails />} />
+                <Route path="/profile" element={<Profile />} />
             </Routes>
         </AuthProvider>
     );

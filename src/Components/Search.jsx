@@ -14,14 +14,12 @@ export function Search({ onSearchResults, onSearchStart }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (value.trim()) {
-      console.log('🔍 Searching for:', value);
       const searchQuery = value.trim();
       onSearchStart(searchQuery); // Envía el término de búsqueda al componente padre
       
       // Navegar con el estado de búsqueda para asegurar que se mantenga
       navigate("/", { state: { searchTerm: searchQuery } });
     }
-    setValue("")
   };
 
 

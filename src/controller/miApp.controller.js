@@ -103,7 +103,7 @@ export const isLogged= async () => {
   
 export const getProfile = async () => {
   let url = urlWebServices.getProfile;
-
+  console.log('Fetching profile from:', url);
   try {
     let response = await fetch(url, {
       method: 'GET',
@@ -126,24 +126,25 @@ export const getProfile = async () => {
 }
 
 export const getFavorites = async () => {
-  let url = urlWebServices.getFavorites;
+  let url = urlWebServices.getFavorite;
 
   try {
-    let response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      credentials: 'include', // Incluir cookies en la petición
-    });
+      let response = await fetch(`${url}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        credentials: 'include', // Incluir cookies en la petición
+      });
 
-    if (response.status === 404) {
-      throw new Error('Usuario no encontrado');
-    }
+      if (response.status === 404) {
+        throw new Error('Usuario no encontrado');
+      }
 
-    let data = await response.json();
-    return { data }; // Wrapping data to match expected structure
+      
+      let data = await response.json();
+    return data; // Retorna el estado de favorito
   } catch (error) {
     throw error;
   }
@@ -267,32 +268,10 @@ export const getProductById = async (id) => {
   }
 }
 
-export const getProductByTitle = async (title) => {
-  let url = `${urlWebServices.getProductByTitle}${title}`;
-
-  try {
-    let response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-    });
-
-    let data = await response.json();
-
-    if (response.status === 404) {
-      throw new Error('Producto no encontrado');
-    }
-
-    return { data }; // Wrapping data to match expected structure
-  } catch (error) {
-    throw error;
-  }
-}
 
 
 
-  
+
+
 
 
