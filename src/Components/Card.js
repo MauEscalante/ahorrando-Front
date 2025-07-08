@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, forwardRef } from "react";
 import { useNavigate } from 'react-router-dom';
 import { toggleFavorites } from "../controller/miApp.controller";
 
-const Card = ({ data , esFavorito}) => {
+// forwardRef permite que este componente reciba un 'ref' desde su padre (Home)
+const Card = forwardRef(({ data , esFavorito}, ref) => {
   
   const [isFavorite, setIsFavorite] = useState(esFavorito);
   const navigate = useNavigate();
@@ -19,7 +20,7 @@ const Card = ({ data , esFavorito}) => {
   };
 
   return (
-    <div className="card-product" onClick={handleCardClick} style={{ cursor: 'pointer' }}>
+    <div className="card-product" onClick={handleCardClick} style={{ cursor: 'pointer' }} ref={ref}>
       <div className="card-image">
         <img src={data.imagenURL} alt={data.titulo} />
       </div>
@@ -41,6 +42,6 @@ const Card = ({ data , esFavorito}) => {
       </div>
     </div>
   );
-};
+});
 
 export default Card;

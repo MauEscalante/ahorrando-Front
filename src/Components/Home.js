@@ -1,121 +1,67 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { getFavorites } from "../controller/miApp.controller";
-import axios from "axios";
 import Card from "../Components/Card";
 import bannerImage from "../Assets/banner-vertical-large-1.jpg";
 import "../Style/Home.css";
 
 const Home = ({  searchTerm }) => {
-  const location = useLocation();
   const [products, setProducts] = useState([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [initialLoad, setInitialLoad] = useState(true);
-  const [favorites, setFavorites] = useState([]); // Estado para favoritos
+  const [favorites, setFavorites] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const[currentPage, setCurrentPage] = useState(1);
+
+  // Crear una referencia que apuntará al último producto de la lista
+  const lastProductRef = useRef(null);
+
+  const getProducts=(page) => {
+    setLoading(true);
+    fetch(`http://localhost:4000/api/products?page=${page}&limit=12`)
+    .then(async res =>{
+      if(!res.ok) throw new Error('Error al cargar productos');
+      return await res.json();
+    })
+    .then(res=>{
+      if(res.length===0) setHasMore(false);
+      else{
+         setProducts(prevProducts => [...prevProducts, ...res]);
+          setCurrentPage(prevPage => prevPage + 1);
+      }
+    })
+    .catch(err => console.error('Error fetching products:', err))
+    .finally(() => setLoading(false));
+  };
+
+  // Cargar productos iniciales
+  useEffect(() => {
+    getProducts(currentPage);
+  }, []);
+
+  // Paso 2: Configurar el IntersectionObserver para detectar cuándo el último producto es visible
+  useEffect(() => {
+    const observer = new IntersectionObserver(OnIntersection, {
+      threshold: 0.3
+    });
+    
+    // Paso 3: Conectar el observer al último producto (si existe)
+    if(lastProductRef.current) {
+      observer.observe(lastProductRef.current);
+    }
+    
+    // Paso 4: Limpiar el observer cuando el componente se desmonte o cambien las dependencias
+    return () => {
+      observer.disconnect();
+    }
+  }, [products, hasMore, loading]); 
   
-  const PRODUCTS_PER_PAGE = 12; // Número de productos por página 
-  
-  const fetchProducts = useCallback(async (pageNum = 1, reset = false, searchQuery = null) => {
-    try {
-      setLoading(true);
-      let response;
-      
-      if (searchQuery) {
-        // Buscar productos por título con paginación
-        response = await axios.get(`http://localhost:4000/api/products/title/${searchQuery}?page=${pageNum}&limit=${PRODUCTS_PER_PAGE}`);
-      } else {
-        // Obtener todos los productos con paginación
-        response = await axios.get(`http://localhost:4000/api/products?page=${pageNum}&limit=${PRODUCTS_PER_PAGE}`);
-      }
-      
-      if (reset) {
-        setProducts(response.data);
-      } else {
-        setProducts(prev => [...prev, ...response.data]);
-      }
-      
-      // Si recibimos menos productos que el límite, no hay más páginas
-      setHasMore(response.data.length === PRODUCTS_PER_PAGE);
-      setInitialLoad(false);
-    } catch (error) {
-      console.error('Error al obtener productos:', error);
-      setHasMore(false);
-    } finally {
-      setLoading(false);
+  // Paso 5: Función que se ejecuta cuando el último producto entra en el viewport
+  const OnIntersection=(entries)=>{
+    const firstEntry = entries[0];
+    if (firstEntry.isIntersecting && hasMore && !loading) {
+      getProducts(currentPage);
     }
-  }, [PRODUCTS_PER_PAGE]);
-  
-  useEffect(() => {
-    fetchProducts(1, true); // Carga inicial
-    const fetchFavorites = async () => {
-      try{
-        const response = await getFavorites();
-        setFavorites(response.favoritos || []);
-      }catch(error){
-        console.error('Error al obtener favoritos:', error);
-      }
-    };
-    fetchFavorites();
-  }, [fetchProducts]);
-
-  // Efecto para manejar searchTerm desde el state de navegación
-  useEffect(() => {
-    if (location.state && location.state.searchTerm) {
-      const navigationSearchTerm = location.state.searchTerm;
-      setIsSearching(true);
-      setCurrentPage(1);
-      setHasMore(true);
-      fetchProducts(1, true, navigationSearchTerm);
-    }
-  }, [location.state, fetchProducts]);
-
-  // Efecto para manejar inicio de búsqueda
-  useEffect(() => {
-    if (searchTerm !== null) {
-      setIsSearching(true);
-      setCurrentPage(1);
-      setHasMore(true);
-      fetchProducts(1, true, searchTerm);
-    }
-  }, [searchTerm, fetchProducts]);
-
-  // Efecto para manejar el reset de búsqueda
-  useEffect(() => {
-    if (searchTerm === null && isSearching) {
-      setIsSearching(false);
-      setCurrentPage(1);
-      setHasMore(true);
-      fetchProducts(1, true);
-    }
-  }, [searchTerm, isSearching, fetchProducts]);
-
-  // Efecto para detectar scroll
-  useEffect(() => {
-    const handleScroll = () => {
-      if (loading || !hasMore) return;
-      
-      const scrollTop = document.documentElement.scrollTop;
-      const scrollHeight = document.documentElement.scrollHeight;
-      const clientHeight = document.documentElement.clientHeight;
-      
-      // Si el usuario está cerca del final (200px antes), cargar más
-      if (scrollTop + clientHeight >= scrollHeight - 200) {
-        setCurrentPage(prevPage => {
-          const newPage = prevPage + 1;
-          // Pasar el término de búsqueda si estamos buscando
-          fetchProducts(newPage, false, isSearching ? searchTerm : null);
-          return newPage;
-        });
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [loading, hasMore, isSearching, searchTerm, fetchProducts]);
-
+  }
 
   return (
     <div className="home-layout">
@@ -134,15 +80,15 @@ const Home = ({  searchTerm }) => {
           
           <div className="contenedor-populars">
             {products.length > 0 ? (
-              products.map((data) => (
-                <Card data={data} key={data._id } esFavorito={favorites.includes(data._id)} />
+              products.map((data, index) => (
+                <Card data={data} key={data._id } esFavorito={favorites.includes(data._id)} ref={index === products.length - 1 ? lastProductRef : null}/>
               ))
             ) : (
-              !loading && !initialLoad && <p>No se encontraron productos</p>
+              !loading && <p>No se encontraron productos</p>
             )}
             
             {/* Skeleton cards para carga inicial */}
-            {loading && initialLoad && (
+            {loading  && (
               <>
                 {[...Array(8)].map((_, index) => (
                   <div key={`skeleton-${index}`} className="skeleton-card">
@@ -160,7 +106,7 @@ const Home = ({  searchTerm }) => {
           </div>
           
           {/* Indicador de carga para scroll infinito */}
-          {loading && !initialLoad && (
+          {loading  && hasMore && (
             <div className="loading-indicator">
               <div className="loading-spinner"></div>
               <p>Cargando más productos...</p>
