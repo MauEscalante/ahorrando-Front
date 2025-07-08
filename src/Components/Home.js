@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useLocation } from "react-router-dom";
-import { getFavorites } from "../controller/miApp.controller";
+import { getFavorites , getProducts} from "../controller/miApp.controller";
 import Card from "../Components/Card";
 import bannerImage from "../Assets/banner-vertical-large-1.jpg";
 import "../Style/Home.css";
@@ -15,17 +14,13 @@ const Home = ({  searchTerm }) => {
   // Crear una referencia que apuntará al último producto de la lista
   const lastProductRef = useRef(null);
 
-  const getProducts=(page) => {
+  const obtenerProductos=async (page) => {
     setLoading(true);
-    fetch(`http://localhost:4000/api/products?page=${page}&limit=12`)
-    .then(async res =>{
-      if(!res.ok) throw new Error('Error al cargar productos');
-      return await res.json();
-    })
+    await getProducts(page)
     .then(res=>{
-      if(res.length===0) setHasMore(false);
+      if(res.data.length===0) setHasMore(false);
       else{
-         setProducts(prevProducts => [...prevProducts, ...res]);
+         setProducts(prevProducts => [...prevProducts, ...res.data]);
           setCurrentPage(prevPage => prevPage + 1);
       }
     })
@@ -35,7 +30,10 @@ const Home = ({  searchTerm }) => {
 
   // Cargar productos iniciales
   useEffect(() => {
-    getProducts(currentPage);
+    const setupInicial = async () => {
+      await obtenerProductos(currentPage);
+    }
+    setupInicial();
   }, []);
 
   // Paso 2: Configurar el IntersectionObserver para detectar cuándo el último producto es visible
@@ -56,10 +54,10 @@ const Home = ({  searchTerm }) => {
   }, [products, hasMore, loading]); 
   
   // Paso 5: Función que se ejecuta cuando el último producto entra en el viewport
-  const OnIntersection=(entries)=>{
+  const OnIntersection=async (entries)=>{
     const firstEntry = entries[0];
     if (firstEntry.isIntersecting && hasMore && !loading) {
-      getProducts(currentPage);
+      await obtenerProductos(currentPage);
     }
   }
 

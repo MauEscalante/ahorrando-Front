@@ -174,8 +174,8 @@ export const toggleFavorites = async (productId, isFavorite) => {
 }
 
   // Product-related endpoints
-export const getProducts=async (page, limit) => {
-  let url = `${urlWebServices.getProducts}?page=${page}&limit=${limit}`;
+export const getProducts=async (page) => {
+  let url = `${urlWebServices.getProducts}?page=${page}&limit=12`;
   try {
     let response = await fetch(url, {
       method: 'GET',
