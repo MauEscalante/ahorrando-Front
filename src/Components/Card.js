@@ -1,13 +1,13 @@
-import React, { useEffect, useState, forwardRef } from "react";
+import  {  useState, forwardRef } from "react";
 import { useNavigate } from 'react-router-dom';
 import { toggleFavorites } from "../controller/miApp.controller";
+import notFoundImage from "../Assets/notFound.jfif";
 
 // forwardRef permite que este componente reciba un 'ref' desde su padre (Home)
 const Card = forwardRef(({ data , esFavorito}, ref) => {
   
   const [isFavorite, setIsFavorite] = useState(esFavorito);
   const navigate = useNavigate();
-
 
   const toggleFavorite = async (e) => {
     e.stopPropagation(); // Evitar que el clic se propague al card
@@ -22,7 +22,14 @@ const Card = forwardRef(({ data , esFavorito}, ref) => {
   return (
     <div className="card-product" onClick={handleCardClick} style={{ cursor: 'pointer' }} ref={ref}>
       <div className="card-image">
-        <img src={data.imagenURL} alt={data.titulo} />
+        {data.imagenURL ?(
+           <img src={data.imagenURL} alt={data.titulo} />
+        ) :(
+          <img src={notFoundImage} alt="No encontrado" />
+        )
+        
+        }
+       
       </div>
       
       <div className="card-content">

@@ -1,38 +1,55 @@
 import React, { useEffect, useState, useRef } from "react";
-import { getFavorites , getProducts} from "../controller/miApp.controller";
+import { getFavorites, getProducts } from "../controller/miApp.controller";
 import Card from "../Components/Card";
 import bannerImage from "../Assets/banner-vertical-large-1.jpg";
 import "../Style/Home.css";
+import { useSearch } from "../context/SearchContext";
 
-const Home = ({  searchTerm }) => {
+const Home = () => {
   const [products, setProducts] = useState([]);
   const [hasMore, setHasMore] = useState(true);
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
-  const[currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
+  const {isSearching,productosBuscados} = useSearch();
+
+  //si busca
+  useEffect(() => {
+    if (isSearching && productosBuscados.length > 0) {
+      console.log("Búsqueda activa:", isSearching);
+      console.log('Productos buscados:', productosBuscados);
+    }
+  }, [isSearching, productosBuscados]);
 
   // Crear una referencia que apuntará al último producto de la lista
   const lastProductRef = useRef(null);
 
-  const obtenerProductos=async (page) => {
+  const obtenerProductos = async (page) => {
     setLoading(true);
     await getProducts(page)
-    .then(res=>{
-      if(res.data.length===0) setHasMore(false);
-      else{
-         setProducts(prevProducts => [...prevProducts, ...res.data]);
+      .then(res => {
+        if (res.data.length === 0) setHasMore(false);
+        else {
+          setProducts(prevProducts => [...prevProducts, ...res.data]);
           setCurrentPage(prevPage => prevPage + 1);
-      }
-    })
-    .catch(err => console.error('Error fetching products:', err))
-    .finally(() => setLoading(false));
+        }
+      })
+      .catch(err => console.error('Error fetching products:', err))
+      .finally(() => setLoading(false));
   };
 
   // Cargar productos iniciales
   useEffect(() => {
     const setupInicial = async () => {
-      await obtenerProductos(currentPage);
-    }
+      try {
+        await obtenerProductos(currentPage);
+        const response = await getFavorites();
+        setFavorites(response.favoritos || []);
+      } catch (error) {
+        console.error('Error en el setup inicial:', error);
+      }
+    };
+
     setupInicial();
   }, []);
 
@@ -41,20 +58,20 @@ const Home = ({  searchTerm }) => {
     const observer = new IntersectionObserver(OnIntersection, {
       threshold: 0.3
     });
-    
+
     // Paso 3: Conectar el observer al último producto (si existe)
-    if(lastProductRef.current) {
+    if (lastProductRef.current) {
       observer.observe(lastProductRef.current);
     }
-    
+
     // Paso 4: Limpiar el observer cuando el componente se desmonte o cambien las dependencias
     return () => {
       observer.disconnect();
     }
-  }, [products, hasMore, loading]); 
-  
+  }, [products, hasMore, loading]);
+
   // Paso 5: Función que se ejecuta cuando el último producto entra en el viewport
-  const OnIntersection=async (entries)=>{
+  const OnIntersection = async (entries) => {
     const firstEntry = entries[0];
     if (firstEntry.isIntersecting && hasMore && !loading) {
       await obtenerProductos(currentPage);
@@ -65,9 +82,9 @@ const Home = ({  searchTerm }) => {
     <div className="home-layout">
       {/* Banner izquierdo */}
       <div className="left-banner">
-        <img 
-          src={bannerImage} 
-          alt="Banner publicitario" 
+        <img
+          src={bannerImage}
+          alt="Banner publicitario"
           className="banner-image"
         />
       </div>
@@ -75,18 +92,18 @@ const Home = ({  searchTerm }) => {
       {/* Contenido principal */}
       <div className="main-content">
         <div className="container text-center">
-          
+
           <div className="contenedor-populars">
             {products.length > 0 ? (
               products.map((data, index) => (
-                <Card data={data} key={data._id } esFavorito={favorites.includes(data._id)} ref={index === products.length - 1 ? lastProductRef : null}/>
+                <Card data={data} key={data._id} esFavorito={favorites.includes(data._id)} ref={index === products.length - 1 ? lastProductRef : null} />
               ))
             ) : (
               !loading && <p>No se encontraron productos</p>
             )}
-            
+
             {/* Skeleton cards para carga inicial */}
-            {loading  && (
+            {loading && (
               <>
                 {[...Array(8)].map((_, index) => (
                   <div key={`skeleton-${index}`} className="skeleton-card">
@@ -102,15 +119,15 @@ const Home = ({  searchTerm }) => {
               </>
             )}
           </div>
-          
+
           {/* Indicador de carga para scroll infinito */}
-          {loading  && hasMore && (
+          {loading && hasMore && (
             <div className="loading-indicator">
               <div className="loading-spinner"></div>
               <p>Cargando más productos...</p>
             </div>
           )}
-          
+
         </div>
       </div>
     </div>

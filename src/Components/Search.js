@@ -1,24 +1,38 @@
-import React from "react";
-import { useState } from "react";
+import { useSearch } from "../context/SearchContext";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../Style/Search.css";
 
-export function Search({ onSearchResults, onSearchStart }) {
+export function Search() {
   const [value, setValue] = useState("");
   const navigate = useNavigate();
+  const { buscarProducto, setIsSearching, isSearching } = useSearch();
+
+  useEffect(() => {
+    // Solo ejecutar cuando isSearching sea false
+    if (!isSearching) {
+      console.log("Limpiando campo de búsqueda");
+      setValue("");
+    }
+  }, [isSearching]);
 
   const handleValue = (e) => {
     setValue(e.target.value);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (value.trim()) {
-      const searchQuery = value.trim();
-      onSearchStart(searchQuery); // Envía el término de búsqueda al componente padre
-      
-      // Navegar con el estado de búsqueda para asegurar que se mantenga
-      navigate("/", { state: { searchTerm: searchQuery } });
+      try {
+        const searchQuery = value.trim();
+        await buscarProducto(searchQuery);
+        setIsSearching(true);
+        navigate("/")
+      } catch (error) {
+        console.error('Error al iniciar búsqueda:', error);
+      }
+
+
     }
   };
 
@@ -45,7 +59,7 @@ export function Search({ onSearchResults, onSearchStart }) {
         </form>
       </div>
 
-      
+
     </>
   );
 };

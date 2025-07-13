@@ -197,6 +197,28 @@ export const getProducts=async (page) => {
   }
 }
 
+export const getProductByTitle = async (title,pageNum) => {
+  let url= `${urlWebServices.getProductByTitle}${title}?page=${pageNum}&limit=12`;
+  try{
+    let response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+    });
+    let data = await response.json();
+
+    if (response.status === 404) {
+      throw new Error('Producto no encontrado');
+    }
+
+    return { data }; // Wrapping data to match expected structure
+  } catch (error) {
+    throw error;
+  }
+}
+
 export const getDetailsById = async (id) => {
   let url = `${urlWebServices.getDetailsById}${id}`;
 
