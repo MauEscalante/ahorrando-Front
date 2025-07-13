@@ -103,7 +103,6 @@ export const isLogged= async () => {
   
 export const getProfile = async () => {
   let url = urlWebServices.getProfile;
-  console.log('Fetching profile from:', url);
   try {
     let response = await fetch(url, {
       method: 'GET',
@@ -174,8 +173,8 @@ export const toggleFavorites = async (productId, isFavorite) => {
 }
 
   // Product-related endpoints
-export const getProducts=async (page, limit) => {
-  let url = `${urlWebServices.getProducts}?page=${page}&limit=${limit}`;
+export const getProducts=async (page) => {
+  let url = `${urlWebServices.getProducts}?page=${page}&limit=12`;
   try {
     let response = await fetch(url, {
       method: 'GET',
@@ -189,6 +188,28 @@ export const getProducts=async (page, limit) => {
 
     if (response.status === 404) {
       throw new Error('Productos no encontrados');
+    }
+
+    return { data }; // Wrapping data to match expected structure
+  } catch (error) {
+    throw error;
+  }
+}
+
+export const getProductByTitle = async (title,pageNum) => {
+  let url= `${urlWebServices.getProductByTitle}${title}?page=${pageNum}&limit=12`;
+  try{
+    let response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+    });
+    let data = await response.json();
+
+    if (response.status === 404) {
+      throw new Error('Producto no encontrado');
     }
 
     return { data }; // Wrapping data to match expected structure

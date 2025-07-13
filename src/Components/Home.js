@@ -1,129 +1,111 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { useLocation } from "react-router-dom";
-import { getFavorites } from "../controller/miApp.controller";
-import axios from "axios";
+import { useEffect, useState, useRef } from "react";
+import { getFavorites, getProducts, getProductByTitle } from "../controller/miApp.controller";
 import Card from "../Components/Card";
 import bannerImage from "../Assets/banner-vertical-large-1.jpg";
 import "../Style/Home.css";
+import { useSearch } from "../context/SearchContext";
+import { useAuth } from "../context/AuthContext";
 
-const Home = ({  searchTerm }) => {
-  const location = useLocation();
+const Home = () => {
   const [products, setProducts] = useState([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [initialLoad, setInitialLoad] = useState(true);
-  const [favorites, setFavorites] = useState([]); // Estado para favoritos
-  
-  const PRODUCTS_PER_PAGE = 12; // Número de productos por página 
-  
-  const fetchProducts = useCallback(async (pageNum = 1, reset = false, searchQuery = null) => {
+  const [favorites, setFavorites] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const { isSearching, searchTerm } = useSearch();
+  const { user } = useAuth();
+
+  const setupInicial = async () => {
     try {
-      setLoading(true);
-      let response;
-      
-      if (searchQuery) {
-        // Buscar productos por título con paginación
-        response = await axios.get(`http://localhost:4000/api/products/title/${searchQuery}?page=${pageNum}&limit=${PRODUCTS_PER_PAGE}`);
-      } else {
-        // Obtener todos los productos con paginación
-        response = await axios.get(`http://localhost:4000/api/products?page=${pageNum}&limit=${PRODUCTS_PER_PAGE}`);
-      }
-      
-      if (reset) {
-        setProducts(response.data);
-      } else {
-        setProducts(prev => [...prev, ...response.data]);
-      }
-      
-      // Si recibimos menos productos que el límite, no hay más páginas
-      setHasMore(response.data.length === PRODUCTS_PER_PAGE);
-      setInitialLoad(false);
-    } catch (error) {
-      console.error('Error al obtener productos:', error);
-      setHasMore(false);
-    } finally {
-      setLoading(false);
-    }
-  }, [PRODUCTS_PER_PAGE]);
-  
-  useEffect(() => {
-    fetchProducts(1, true); // Carga inicial
-    const fetchFavorites = async () => {
-      try{
+      setProducts([]); // Limpiar productos al iniciar
+      setHasMore(true); // Reiniciar hasMore
+      setCurrentPage(1); // Reiniciar la página actual
+      await obtenerProductos(currentPage);
+      if (user) {
         const response = await getFavorites();
         setFavorites(response.favoritos || []);
-      }catch(error){
-        console.error('Error al obtener favoritos:', error);
       }
-    };
-    fetchFavorites();
-  }, [fetchProducts]);
 
-  // Efecto para manejar searchTerm desde el state de navegación
-  useEffect(() => {
-    if (location.state && location.state.searchTerm) {
-      const navigationSearchTerm = location.state.searchTerm;
-      setIsSearching(true);
-      setCurrentPage(1);
-      setHasMore(true);
-      fetchProducts(1, true, navigationSearchTerm);
+    } catch (error) {
+      console.error('Error en el setup inicial:', error);
     }
-  }, [location.state, fetchProducts]);
+  };
 
-  // Efecto para manejar inicio de búsqueda
+  //si busca
   useEffect(() => {
-    if (searchTerm !== null) {
-      setIsSearching(true);
-      setCurrentPage(1);
-      setHasMore(true);
-      fetchProducts(1, true, searchTerm);
+    const busquedaActiva = async () => {
+      setCurrentPage(1); // Reiniciar la página actual al buscar
+      setProducts([]); // Limpiar los productos actuales
+      setHasMore(true); // Reiniciar hasMore
+      await obtenerProductos(1);
     }
-  }, [searchTerm, fetchProducts]);
-
-  // Efecto para manejar el reset de búsqueda
-  useEffect(() => {
-    if (searchTerm === null && isSearching) {
-      setIsSearching(false);
-      setCurrentPage(1);
-      setHasMore(true);
-      fetchProducts(1, true);
+    if (isSearching && searchTerm) {
+      busquedaActiva();
+    } else {
+      setupInicial();
     }
-  }, [searchTerm, isSearching, fetchProducts]);
 
-  // Efecto para detectar scroll
+
+  }, [searchTerm]);
+
+  // Crear una referencia que apuntará al último producto de la lista
+  const lastProductRef = useRef(null);
+
+  const obtenerProductos = async (page) => {
+    const apiCall = isSearching ? getProductByTitle(searchTerm, page) : getProducts(page);
+    setLoading(true);
+    await apiCall
+      .then(res => {
+        if (res.data.length === 0) setHasMore(false);
+        else {
+          setProducts(prevProducts => [...prevProducts, ...res.data]);
+          setCurrentPage(prevPage => prevPage + 1);
+          if (res.data.length < 12) {
+            setHasMore(false); // Si la cantidad de productos es menor a 12, no hay más productos
+          }
+        }
+      })
+      .catch(err => console.error('Error obteniendo productos:', err))
+      .finally(() => setLoading(false));
+  };
+
+  // Cargar productos iniciales
   useEffect(() => {
-    const handleScroll = () => {
-      if (loading || !hasMore) return;
-      
-      const scrollTop = document.documentElement.scrollTop;
-      const scrollHeight = document.documentElement.scrollHeight;
-      const clientHeight = document.documentElement.clientHeight;
-      
-      // Si el usuario está cerca del final (200px antes), cargar más
-      if (scrollTop + clientHeight >= scrollHeight - 200) {
-        setCurrentPage(prevPage => {
-          const newPage = prevPage + 1;
-          // Pasar el término de búsqueda si estamos buscando
-          fetchProducts(newPage, false, isSearching ? searchTerm : null);
-          return newPage;
-        });
-      }
-    };
+    setupInicial();
+  }, []);
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [loading, hasMore, isSearching, searchTerm, fetchProducts]);
+  // Paso 2: Configurar el IntersectionObserver para detectar cuándo el último producto es visible
+  useEffect(() => {
+    const observer = new IntersectionObserver(OnIntersection, {
+      threshold: 0.3
+    });
 
+    // Paso 3: Conectar el observer al último producto (si existe)
+    if (lastProductRef.current) {
+      observer.observe(lastProductRef.current);
+    }
+
+    // Paso 4: Limpiar el observer cuando el componente se desmonte o cambien las dependencias
+    return () => {
+      observer.disconnect();
+    }
+  }, [products, hasMore, loading]);
+
+  // Paso 5: Función que se ejecuta cuando el último producto entra en el viewport
+  const OnIntersection = async (entries) => {
+    const firstEntry = entries[0];
+    if (firstEntry.isIntersecting && hasMore && !loading) {
+      await obtenerProductos(currentPage);
+    }
+  }
 
   return (
     <div className="home-layout">
       {/* Banner izquierdo */}
       <div className="left-banner">
-        <img 
-          src={bannerImage} 
-          alt="Banner publicitario" 
+        <img
+          src={bannerImage}
+          alt="Banner publicitario"
           className="banner-image"
         />
       </div>
@@ -131,18 +113,18 @@ const Home = ({  searchTerm }) => {
       {/* Contenido principal */}
       <div className="main-content">
         <div className="container text-center">
-          
+
           <div className="contenedor-populars">
             {products.length > 0 ? (
-              products.map((data) => (
-                <Card data={data} key={data._id } esFavorito={favorites.includes(data._id)} />
+              products.map((data, index) => (
+                <Card data={data} key={data._id} esFavorito={favorites.includes(data._id)} ref={index === products.length - 1 ? lastProductRef : null} />
               ))
             ) : (
-              !loading && !initialLoad && <p>No se encontraron productos</p>
+              !loading && <p>No se encontraron productos</p>
             )}
-            
+
             {/* Skeleton cards para carga inicial */}
-            {loading && initialLoad && (
+            {loading && (
               <>
                 {[...Array(8)].map((_, index) => (
                   <div key={`skeleton-${index}`} className="skeleton-card">
@@ -158,15 +140,15 @@ const Home = ({  searchTerm }) => {
               </>
             )}
           </div>
-          
+
           {/* Indicador de carga para scroll infinito */}
-          {loading && !initialLoad && (
+          {loading && hasMore && (
             <div className="loading-indicator">
               <div className="loading-spinner"></div>
               <p>Cargando más productos...</p>
             </div>
           )}
-          
+
         </div>
       </div>
     </div>

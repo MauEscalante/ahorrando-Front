@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import  { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../Style/navbar.css"
 import Search from "./Search";
@@ -7,17 +7,23 @@ import options from "../Assets/options.svg";
 import usuarioIcon from "../Assets/usuario.svg";
 import { logout } from "../controller/miApp.controller";
 import { useAuth } from "../context/AuthContext";
+import { useSearch } from "../context/SearchContext";
 
-const Navbar =  ({ onSearchResults, onSearchStart, onClearSearch }) => {
+const Navbar =  () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { user, clearUser } = useAuth();
   const navigate = useNavigate();
+  const { limpiarBusqueda } = useSearch();
 
 
   const handleLogoClick = () => {
-    if (onClearSearch) {
-      onClearSearch();
+    try{
+      limpiarBusqueda();
+      navigate("/"); // Redirigir al inicio
+    }catch (error) {
+      console.error('Error al manejar el clic en el logo:', error);
     }
+   
   };
 
   const handdleLogout = async (e) => {
@@ -47,7 +53,7 @@ const Navbar =  ({ onSearchResults, onSearchStart, onClearSearch }) => {
         </Link>
 
         <div className="search-container">
-          <Search onSearchResults={onSearchResults} onSearchStart={onSearchStart} />
+          <Search/>
         </div>
 
         <form className="d-flex form-log" role="search">
