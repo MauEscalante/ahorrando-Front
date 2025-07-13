@@ -1,9 +1,10 @@
-import React, { useEffect, useState, useRef } from "react";
-import { getFavorites, getProducts } from "../controller/miApp.controller";
+import { useEffect, useState, useRef } from "react";
+import { getFavorites, getProducts, getProductByTitle } from "../controller/miApp.controller";
 import Card from "../Components/Card";
 import bannerImage from "../Assets/banner-vertical-large-1.jpg";
 import "../Style/Home.css";
 import { useSearch } from "../context/SearchContext";
+import { useAuth } from "../context/AuthContext";
 
 const Home = () => {
   const [products, setProducts] = useState([]);
@@ -11,45 +12,65 @@ const Home = () => {
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const {isSearching,productosBuscados} = useSearch();
+  const { isSearching, searchTerm } = useSearch();
+  const { user } = useAuth();
+
+  const setupInicial = async () => {
+    try {
+      setProducts([]); // Limpiar productos al iniciar
+      setHasMore(true); // Reiniciar hasMore
+      setCurrentPage(1); // Reiniciar la página actual
+      await obtenerProductos(currentPage);
+      if (user) {
+        const response = await getFavorites();
+        setFavorites(response.favoritos || []);
+      }
+
+    } catch (error) {
+      console.error('Error en el setup inicial:', error);
+    }
+  };
 
   //si busca
   useEffect(() => {
-    if (isSearching && productosBuscados.length > 0) {
-      console.log("Búsqueda activa:", isSearching);
-      console.log('Productos buscados:', productosBuscados);
+    const busquedaActiva = async () => {
+      setCurrentPage(1); // Reiniciar la página actual al buscar
+      setProducts([]); // Limpiar los productos actuales
+      setHasMore(true); // Reiniciar hasMore
+      await obtenerProductos(1);
     }
-  }, [isSearching, productosBuscados]);
+    if (isSearching && searchTerm) {
+      busquedaActiva();
+    } else {
+      setupInicial();
+    }
+
+
+  }, [searchTerm]);
 
   // Crear una referencia que apuntará al último producto de la lista
   const lastProductRef = useRef(null);
 
   const obtenerProductos = async (page) => {
+    const apiCall = isSearching ? getProductByTitle(searchTerm, page) : getProducts(page);
     setLoading(true);
-    await getProducts(page)
+    await apiCall
       .then(res => {
         if (res.data.length === 0) setHasMore(false);
         else {
           setProducts(prevProducts => [...prevProducts, ...res.data]);
           setCurrentPage(prevPage => prevPage + 1);
+          if (res.data.length < 12) {
+            setHasMore(false); // Si la cantidad de productos es menor a 12, no hay más productos
+          }
         }
       })
-      .catch(err => console.error('Error fetching products:', err))
+      .catch(err => console.error('Error obteniendo productos:', err))
       .finally(() => setLoading(false));
   };
 
   // Cargar productos iniciales
   useEffect(() => {
-    const setupInicial = async () => {
-      try {
-        await obtenerProductos(currentPage);
-        const response = await getFavorites();
-        setFavorites(response.favoritos || []);
-      } catch (error) {
-        console.error('Error en el setup inicial:', error);
-      }
-    };
-
     setupInicial();
   }, []);
 

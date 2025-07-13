@@ -103,7 +103,6 @@ export const isLogged= async () => {
   
 export const getProfile = async () => {
   let url = urlWebServices.getProfile;
-  console.log('Fetching profile from:', url);
   try {
     let response = await fetch(url, {
       method: 'GET',

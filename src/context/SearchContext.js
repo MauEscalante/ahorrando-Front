@@ -1,5 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
-import { getProductByTitle } from '../controller/miApp.controller';
+import  { createContext, useContext, useState } from 'react';
 
 // Crear el contexto de búsqueda
 export const SearchContext = createContext();
@@ -15,27 +14,26 @@ export const useSearch = () => {
 
 // Proveedor del contexto de búsqueda
 export const SearchProvider = ({ children }) => {
-  const[productosBuscados, setProductos] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const buscarProducto=async (searchQuery) => {
     try{
-        console.log('Buscando producto:', searchQuery);
+        setSearchTerm(searchQuery);
         setIsSearching(true);
-        const response = await getProductByTitle(searchQuery);
-        setProductos(response.data);
+        
     }catch (error) {
         console.error('Error al buscar producto:', error);
     }
   };
 
   const limpiarBusqueda = () => {
-    setProductos([]);
+    setSearchTerm("");
     setIsSearching(false);
   };
 
   return (
-    <SearchContext.Provider value={{ productosBuscados, buscarProducto,isSearching,setIsSearching, limpiarBusqueda }}>
+    <SearchContext.Provider value={{  buscarProducto,isSearching,setIsSearching, limpiarBusqueda, searchTerm }}>
       {children}
     </SearchContext.Provider>
   );

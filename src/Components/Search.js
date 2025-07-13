@@ -11,7 +11,6 @@ export function Search() {
   useEffect(() => {
     // Solo ejecutar cuando isSearching sea false
     if (!isSearching) {
-      console.log("Limpiando campo de búsqueda");
       setValue("");
     }
   }, [isSearching]);
