@@ -1,4 +1,4 @@
-import  { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState } from 'react';
 
 // Crear el contexto de búsqueda
 export const SearchContext = createContext();
@@ -17,13 +17,13 @@ export const SearchProvider = ({ children }) => {
   const [isSearching, setIsSearching] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const buscarProducto=async (searchQuery) => {
-    try{
-        setSearchTerm(searchQuery);
-        setIsSearching(true);
-        
-    }catch (error) {
-        console.error('Error al buscar producto:', error);
+  const buscarProducto = async (searchQuery) => {
+    try {
+      setSearchTerm(searchQuery);
+      setIsSearching(true);
+
+    } catch (error) {
+      console.error('Error al buscar producto:', error);
     }
   };
 
@@ -33,7 +33,7 @@ export const SearchProvider = ({ children }) => {
   };
 
   return (
-    <SearchContext.Provider value={{  buscarProducto,isSearching,setIsSearching, limpiarBusqueda, searchTerm }}>
+    <SearchContext.Provider value={{ buscarProducto, isSearching, limpiarBusqueda, searchTerm }}>
       {children}
     </SearchContext.Provider>
   );

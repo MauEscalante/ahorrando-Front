@@ -1,8 +1,9 @@
 import { useEffect, useState, useRef } from "react";
-import { getFavorites, getProducts, getProductByTitle } from "../controller/miApp.controller";
-import Card from "../Components/Card";
+import { useParams } from "react-router-dom";
+import { getFavorites,  getProductByTitle } from "../controller/miApp.controller";
+import Card from "./Card";
 import bannerImage from "../Assets/banner-vertical-large-1.jpg";
-import "../Style/Home.css";
+import "../Style/Lists.css";
 import { useSearch } from "../context/SearchContext";
 import { useAuth } from "../context/AuthContext";
 
@@ -12,15 +13,34 @@ const Home = () => {
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const { isSearching, searchTerm } = useSearch();
+  const { searchTerm } = useSearch();
   const { user } = useAuth();
+  const { searchTerm: urlSearchTerm } = useParams(); // Obtener término de búsqueda de la URL
+
+  // Usar el término de búsqueda de la URL o del contexto
+  const currentSearchTerm = urlSearchTerm || searchTerm;
 
   const setupInicial = async () => {
     try {
+      setCurrentPage(1); // Reiniciar la página actual al iniciar
       setProducts([]); // Limpiar productos al iniciar
       setHasMore(true); // Reiniciar hasMore
-      setCurrentPage(1); // Reiniciar la página actual
-      await obtenerProductos(currentPage);
+      
+      // Llamar obtenerProductos con page=1 directamente
+      setLoading(true);
+      await getProductByTitle(currentSearchTerm, 1)
+        .then(res => {
+          if (res.data.length === 0) setHasMore(false);
+          else {
+            setProducts(res.data); // Reemplazar completamente los productos
+            if (res.data.length < 12) {
+              setHasMore(false);
+            }
+          }
+        })
+        .catch(err => console.error('Error obteniendo productos:', err))
+        .finally(() => setLoading(false));
+        
       if (user) {
         const response = await getFavorites();
         setFavorites(response.favoritos || []);
@@ -33,33 +53,47 @@ const Home = () => {
 
   //si busca
   useEffect(() => {
+    window.scrollTo(0, 0); // Scroll instantáneo al top
     const busquedaActiva = async () => {
       setCurrentPage(1); // Reiniciar la página actual al buscar
       setProducts([]); // Limpiar los productos actuales
       setHasMore(true); // Reiniciar hasMore
-      await obtenerProductos(1);
+      
+      // Llamar obtenerProductos con page=1 directamente
+      setLoading(true);
+      await getProductByTitle(currentSearchTerm, 1)
+        .then(res => {
+          if (res.data.length === 0) setHasMore(false);
+          else {
+            setProducts(res.data); // Reemplazar completamente los productos
+            if (res.data.length < 12) {
+              setHasMore(false);
+            }
+          }
+        })
+        .catch(err => console.error('Error obteniendo productos:', err))
+        .finally(() => setLoading(false));
     }
-    if (isSearching && searchTerm) {
+
+    if (currentSearchTerm) {
       busquedaActiva();
     } else {
       setupInicial();
     }
 
-
-  }, [searchTerm]);
+  }, [searchTerm, urlSearchTerm]);
 
   // Crear una referencia que apuntará al último producto de la lista
   const lastProductRef = useRef(null);
 
   const obtenerProductos = async (page) => {
-    const apiCall = isSearching ? getProductByTitle(searchTerm, page) : getProducts(page);
+  
     setLoading(true);
-    await apiCall
+    await getProductByTitle(currentSearchTerm, page)
       .then(res => {
         if (res.data.length === 0) setHasMore(false);
         else {
           setProducts(prevProducts => [...prevProducts, ...res.data]);
-          setCurrentPage(prevPage => prevPage + 1);
           if (res.data.length < 12) {
             setHasMore(false); // Si la cantidad de productos es menor a 12, no hay más productos
           }
@@ -68,11 +102,6 @@ const Home = () => {
       .catch(err => console.error('Error obteniendo productos:', err))
       .finally(() => setLoading(false));
   };
-
-  // Cargar productos iniciales
-  useEffect(() => {
-    setupInicial();
-  }, []);
 
   // Paso 2: Configurar el IntersectionObserver para detectar cuándo el último producto es visible
   useEffect(() => {
@@ -95,7 +124,8 @@ const Home = () => {
   const OnIntersection = async (entries) => {
     const firstEntry = entries[0];
     if (firstEntry.isIntersecting && hasMore && !loading) {
-      await obtenerProductos(currentPage);
+      await obtenerProductos(currentPage + 1);
+      setCurrentPage(currentPage + 1); // Incrementar la página actual
     }
   }
 
@@ -113,14 +143,22 @@ const Home = () => {
       {/* Contenido principal */}
       <div className="main-content">
         <div className="container text-center">
+         
 
           <div className="contenedor-populars">
             {products.length > 0 ? (
               products.map((data, index) => (
-                <Card data={data} key={data._id} esFavorito={favorites.includes(data._id)} ref={index === products.length - 1 ? lastProductRef : null} />
+                <Card data={data} key={`${data._id}-${index}`} esFavorito={favorites.includes(data._id)} ref={index === products.length - 1 ? lastProductRef : null} />
               ))
             ) : (
-              !loading && <p>No se encontraron productos</p>
+              !loading && (
+                <p>
+                  {currentSearchTerm
+                    ? `No se encontraron productos para "${currentSearchTerm}"`
+                    : "No se encontraron productos"
+                  }
+                </p>
+              )
             )}
 
             {/* Skeleton cards para carga inicial */}
