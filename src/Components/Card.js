@@ -19,6 +19,11 @@ const Card = forwardRef(({ data , esFavorito}, ref) => {
     navigate(`/product/${data._id}`);
   };
 
+  const precioFormateado = data.precio.toLocaleString('es-AR', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  });
+
   return (
     <div className="card-product" onClick={handleCardClick} style={{ cursor: 'pointer' }} ref={ref}>
       <div className="card-image">
@@ -36,7 +41,7 @@ const Card = forwardRef(({ data , esFavorito}, ref) => {
         <h3 className="card-title">{data.titulo}</h3>
         <p className="card-store">{data.local}</p>
         <div className="card-footer">
-          <span className="card-price">{data.precio}</span>
+          <span className="card-price">${precioFormateado}</span>
           <button 
             className={`favorite-btn ${isFavorite ? 'active' : ''}`}
             onClick={toggleFavorite}

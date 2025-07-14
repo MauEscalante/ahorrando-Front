@@ -19,7 +19,7 @@ const Navbar =  () => {
   const handleLogoClick = () => {
     try{
       limpiarBusqueda();
-      navigate("/"); // Redirigir al inicio
+      navigate("/"); 
     }catch (error) {
       console.error('Error al manejar el clic en el logo:', error);
     }

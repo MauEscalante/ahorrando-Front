@@ -1,15 +1,14 @@
-import { useSearch } from "../context/SearchContext";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../Style/Search.css";
+import { useSearch } from "../context/SearchContext";
 
 export function Search() {
   const [value, setValue] = useState("");
   const navigate = useNavigate();
-  const { buscarProducto, setIsSearching, isSearching } = useSearch();
+  const { buscarProducto, isSearching } = useSearch();
 
   useEffect(() => {
-    // Solo ejecutar cuando isSearching sea false
     if (!isSearching) {
       setValue("");
     }
@@ -25,23 +24,17 @@ export function Search() {
       try {
         const searchQuery = value.trim();
         await buscarProducto(searchQuery);
-        setIsSearching(true);
-        navigate("/")
+        // Cambiar la URL para incluir el término de búsqueda
+        navigate(`/products/${encodeURIComponent(searchQuery)}`);
       } catch (error) {
         console.error('Error al iniciar búsqueda:', error);
       }
-
-
     }
   };
 
-
   return (
     <>
-      <div
-        className="  py-4 pt-5 pb-5"
-      >
-
+      <div className="py-4 pt-5 pb-5">
         <form onSubmit={handleSubmit}>
           <div className="contenedor-input">
             <input
@@ -51,16 +44,11 @@ export function Search() {
               onChange={handleValue}
               value={value}
             />
-            <button type="submit" className="search-button">
-              <span className="search-icon">🔍</span>
-            </button>
           </div>
         </form>
       </div>
-
-
     </>
   );
-};
+}
 
 export default Search;
