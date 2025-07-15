@@ -63,7 +63,11 @@ const Login = () => {
     
     try {
       const user = await signIn(formData);
-      
+      if(user.message==="Contraseña incorrecta"){
+        setErrors({ password: 'Contraseña incorrecta' });
+        setIsLoading(false);
+        return;
+      }
       // Actualizar el estado del usuario en el contexto
       refreshUser();
       

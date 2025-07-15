@@ -46,6 +46,7 @@ export const signIn = async userData => {
 
     let data = await response.json();
     if (data.status >= 400) {
+
       throw data;
     }
     return data;
