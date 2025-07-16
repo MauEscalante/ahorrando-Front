@@ -36,16 +36,27 @@ const Grafico = ({ productId }) => {
       try {
         setLoading(true);
         setError(null);
-        
+              
         const response = await getPromedios(productId);
         
         // Extraer el array de datos (puede estar en response.data o directamente en response)
         const data = response.data || response;
         
         if (data && Array.isArray(data) && data.length > 0) {
-          // Filtrar solo los elementos que tienen precio válido (no null)
-          const validData = data.filter(item => item.precio !== null && item.precio !== undefined);
           
+          // Filtrar solo los elementos que tienen precio válido (no null, undefined y mayor a 0)
+          const validData = data.filter(item => {
+            const isValid = item.precio !== null && 
+                           item.precio !== undefined && 
+                           typeof item.precio === 'number' && 
+                           item.precio > 0 &&
+                           item.año !== null &&
+                           item.año !== undefined &&
+                           item.mes !== null &&
+                           item.mes !== undefined;
+            
+            return isValid;
+          });
           
           if (validData.length > 0) {
             // Extraer fechas y precios de los datos válidos
@@ -53,26 +64,16 @@ const Grafico = ({ productId }) => {
               return `${item.mes} de ${item.año}`;
             });
             
-            const prices = validData.map(item => {
-              // Convertir string a número, removiendo caracteres no numéricos si es necesario
-              let precio;
-              if (typeof item.precio === 'string') {
-                // Remover símbolos de moneda y puntos de miles, mantener solo números y comas decimales
-                const cleanPrice = item.precio.replace(/[$.\s]/g, '').replace(',', '.');
-                precio = parseFloat(cleanPrice);
-              } else {
-                precio = parseFloat(item.precio);
-              }
-              return precio;
-            });
+            // Los precios ya son números, no necesitamos parseFloat
+            const priceData = validData.map(item => item.precio);
             
             
-            setChartData({
+            const newChartData = {
               labels: labels,
               datasets: [
                 {
                   label: 'Precio Promedio',
-                  data: prices,
+                  data: priceData,
                   borderColor: 'rgb(75, 192, 192)',
                   backgroundColor: 'rgba(75, 192, 192, 0.2)',
                   borderWidth: 2,
@@ -85,17 +86,18 @@ const Grafico = ({ productId }) => {
                   pointHoverRadius: 6,
                 },
               ],
-            });
+            };
+            
+            setChartData(newChartData);
           } else {
             setError('No hay datos de precios válidos para este producto');
           }
         } else {
-          console.log('No hay datos válidos:', data);
           setError('No hay datos disponibles para este producto');
         }
       } catch (err) {
         console.error('Error al obtener los datos:', err);
-        setError('Error al cargar los datos del gráfico');
+        setError('Error al cargar los datos del gráfico: ' + err.message);
       } finally {
         setLoading(false);
       }
@@ -103,8 +105,12 @@ const Grafico = ({ productId }) => {
 
     if (productId) {
       fetchData();
+    } else {
+      setError('ID de producto no proporcionado');
+      setLoading(false);
     }
   }, [productId]);
+
 
   const options = {
     responsive: true,

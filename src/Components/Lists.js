@@ -125,7 +125,6 @@ const Home = () => {
           <div className="contenedor-populars">
             {products.length > 0 ? (
               products.map((data, index) => (
-                console.log("DATA", favorites.includes(data._id)),
                 <Card data={data} key={`${data._id}-${index}`} esFavorito={favorites.includes(data._id)} ref={index === products.length - 1 ? lastProductRef : null} />
               ))
             ) : (

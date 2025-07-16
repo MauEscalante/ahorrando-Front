@@ -5,8 +5,8 @@ import '../Style/ProductDetails.css';
 import { getProductById, getDetalles } from '../controller/miApp.controller'; // Asegúrate de que esta función esté definida correctamente
 
 const ProductDetails = () => {
-    const params= useParams();
-    const id=params.productId
+    const params = useParams();
+    const id = params.productId
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -40,14 +40,20 @@ const ProductDetails = () => {
     if (error) return <div>Error: {error}</div>;
     if (!product) return <div>Producto no encontrado</div>;
 
+    const precioFormateado = product.precio.toLocaleString('es-AR', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    });
+
+
     return (
         <div className="product-details-container">
             <div className="product-info-section">
                 <div className="product-main-info">
                     <div className="product-image-container">
-                        <img 
-                            src={product.imagenURL} 
-                            alt={product.titulo} 
+                        <img
+                            src={product.imagenURL}
+                            alt={product.titulo}
                             className="product-image"
                             loading="lazy"
                             decoding="async"
@@ -62,8 +68,8 @@ const ProductDetails = () => {
                         <h1 className="product-title">{product.titulo}</h1>
                         <div className="product-price-info">
                             <div className="price-and-favorite">
-                                <span className="current-price"> {product.precio}</span>
-                                <button 
+                                <span className="current-price"> ${precioFormateado}</span>
+                                <button
                                     className={`favorite-btn ${isFavorite ? 'active' : ''}`}
                                     onClick={toggleFavorite}
                                 >
@@ -91,5 +97,5 @@ const ProductDetails = () => {
     );
 }
 
-    
+
 export default ProductDetails;
