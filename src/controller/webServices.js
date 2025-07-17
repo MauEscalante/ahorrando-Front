@@ -1,6 +1,5 @@
-import { getFavorites } from "./miApp.controller";
-
-const urlApi= process.env.REACT_APP_API_URL || 'http://localhost:4000/api';
+const urlApi= "https://ahorrando-api.onrender.com/api" // para producción
+// const urlApi = "http://localhost:4000/api"; // para desarrollo local
 
 const urlWebServices = {
   // User-related endpoints
